@@ -10,7 +10,7 @@ class Main {
         this.keyControl_s = 0;
     }
 
-    mainS() {
+    setup() {
         for (var i = 0; i < 60; i++) {
             (this.x[i] = random(width)), (this.y[i] = random(height));
             if (i % 5 == 0) {
@@ -23,7 +23,7 @@ class Main {
         }
     }
 
-    mainD() {
+    draw() {
         for (var i = 0; i < 60; i++) {
             this.x[i] +=
                 random(-(this.size[i] / 40), this.size[i] / 40) + this.keyControl;
@@ -78,7 +78,7 @@ class Sub {
         this.keyControl = 0;
         this.keyControl_s = 0;
     }
-    subS() {
+    setup() {
         for (var i = 0; i < 20; i++) {
             this.x[i] = random(width);
             this.y[i] = height;
@@ -88,7 +88,7 @@ class Sub {
         }
     }
 
-    subD() {
+    draw() {
         this.count += 1;
         let randomness = 100 * int(random(8, 16));
         for (var i = 0; i < 20; i++) {
@@ -107,41 +107,37 @@ class Sub {
     }
 }
 
-//fall
-
-class Fall {
-    constructor() {
-        this.x = [];
-        this.y = [];
-        this.size = [];
-        this.speed = [];
-        this.col = [];
-        this.al = [];
+class Fish {
+    constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
     }
-    fallS() {
-        for (var i = 0; i < 5; i++) {
-            this.x[i] = random(width);
-            this.y[i] = random(-10, 0);
-            this.size[i] = random(5, 10);
-            this.speed[i] = random(5, 10);
-            this.col[i] = color(255, 255, 0);
-            this.al[i] = 0;
-        }
+    draw() {
+        this.drawTriangle(0, 120, 240, { x: this.x + this.size, y: this.y });
+        this.drawTriangle(60, 180, 300, { x: this.x, y: this.y });
+        this.drawTriangle(60, 180, 300, { x: this.x + this.size * 3, y: this.y })
     }
-    fallD() {
-        for (var i = 0; i < 5; i++) {
-            this.y[i] += this.speed[i];
-            this.x[i] += random(-5, 5);
-            if (this.y[i] > height) {
-                this.y[i] = 0;
-                this.x[i] = random(width);
-            }
-            noStroke();
-            fill(255, 255, 0, 125);
-            circle(this.x[i], this.y[i], this.size[i]);
+    drawTriangle(theta1, theta2, theta3, center) {
+        let thetas = [theta1, theta2, theta3];
+        let points = [];
+        for (let theta of thetas) {
+            let x = cos(theta) * this.size;
+            let y = sin(theta) * this.size;
+            stroke("white");
+            strokeWeight(2);
+            points.push({ x: x + center.x, y: y + center.y });
         }
+        line(points[0].x, points[0].y, points[1].x, points[1].y);
+        line(points[1].x, points[1].y, points[2].x, points[2].y);
+        line(points[2].x, points[2].y, points[0].x, points[0].y);
+    }
+    move(x, y) {
+        this.x += x;
+        this.y += y;
     }
 }
+
 
 // bgm
 let song;
@@ -149,23 +145,25 @@ let song;
 let backcolor = [];
 let backcolorspeed = [];
 
+let fish = new Fish(800, 400, 20);
+
 function preload() {
     song = loadSound(
         "N3WPORT & Meggie York - Runaway [NCS Release].mp3"
     );
-    console.log("run");
 }
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
+    angleMode(DEGREES);
     noCursor();
     let fs = fullscreen();
     fullscreen(!fs);
     song.loop();
     main = new Main();
     sub = new Sub();
-    main.mainS();
-    sub.subS();
+    main.setup();
+    sub.setup();
     for (var i = 0; i < 50; i++) {
         backcolor[i] = 30 + i;
         backcolorspeed[i] = 0.25;
@@ -183,8 +181,11 @@ function draw() {
         }
     }
 
-    main.mainD();
-    sub.subD();
+    main.draw();
+    sub.draw();
+    fish.draw();
+    fish.move(-2, 0);
+
     fill(255);
     circle(mouseX, mouseY, 5);
     if (keyIsDown(LEFT_ARROW) && main.keyControl > -5) {
