@@ -107,45 +107,11 @@ class Sub {
     }
 }
 
-class Fish {
-    constructor(x, y, size) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
-    }
-    draw() {
-        this.drawTriangle(0, 120, 240, { x: this.x + this.size, y: this.y });
-        this.drawTriangle(60, 180, 300, { x: this.x, y: this.y });
-        this.drawTriangle(60, 180, 300, { x: this.x + this.size * 3, y: this.y })
-    }
-    drawTriangle(theta1, theta2, theta3, center) {
-        let thetas = [theta1, theta2, theta3];
-        let points = [];
-        for (let theta of thetas) {
-            let x = cos(theta) * this.size;
-            let y = sin(theta) * this.size;
-            stroke("white");
-            strokeWeight(2);
-            points.push({ x: x + center.x, y: y + center.y });
-        }
-        line(points[0].x, points[0].y, points[1].x, points[1].y);
-        line(points[1].x, points[1].y, points[2].x, points[2].y);
-        line(points[2].x, points[2].y, points[0].x, points[0].y);
-    }
-    move(x, y) {
-        this.x += x;
-        this.y += y;
-    }
-}
-
-
 // bgm
 let song;
 
 let backcolor = [];
 let backcolorspeed = [];
-
-let fish = new Fish(800, 400, 20);
 
 function preload() {
     song = loadSound(
@@ -183,8 +149,6 @@ function draw() {
 
     main.draw();
     sub.draw();
-    fish.draw();
-    fish.move(-2, 0);
 
     fill(255);
     circle(mouseX, mouseY, 5);
